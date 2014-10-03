@@ -67,7 +67,6 @@
             ADTECH.config.page = this.config.adtech;
             ADTECH.debugMode = this.config.debugMode;
         }
-        console.log(this.config);
     };
 
     AdtechManager.prototype = {
