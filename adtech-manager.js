@@ -2,8 +2,7 @@
     'use strict';
     if (typeof define === 'function' && define.amd) {
         define('adtech-manager', function () {
-            var _ = require('underscore');
-            return (root.AdtechManager = factory(root, _));
+            return (root.AdtechManager = factory(root));
         });
     }
     else if (typeof exports === 'object') {
@@ -12,16 +11,8 @@
     else {
         root.AdtechManager = factory(root);
     }
-}(this, function (window, _) {
+}(this, function (window) {
     'use strict';
-
-    if (typeof _ === 'undefined') {
-        if (typeof window._ === 'undefined') {
-            throw 'AdTechManager requires underscore'
-        } else {
-            _ = window._;
-        }
-    }
 
     if(typeof window.ADTECH === 'undefined') {
         throw 'AdTechManager requires Dac.js.'
@@ -42,7 +33,7 @@
         else {
             var data = {};
 
-            _.each(el.attributes, function(attr) {
+            each(el.attributes, function(attr) {
                 var name = attr.nodeName;
                 if (/data\-/.test(name)) {
                     data[camelCase(name.replace('data-', ''))] = attr.nodeValue;
@@ -52,16 +43,48 @@
             return data;
         }
     };
+    var extend = function(target, source) {
+        for (var prop in source) {
+            if (prop in target) {
+                extend(target[prop], source[prop]);
+            }
+            else {
+                target[prop] = source[prop];
+            }
+        }
+        return target;
+    };
+    var each = function(arr, callback, obj) {
+        if (arr) {
+            if (typeof(arr.length) === 'undefined') {
+                var prop;
+                for (prop in arr) {
+                    if (arr.hasOwnProperty(prop)) {
+                        callback.call(obj || null, arr[prop], prop, arr);
+                    }
+                }
+            } else {
+                var l = arr.length,
+                    i = 0;
+                for (;i < l;i++) {
+                    callback.call(obj || null, arr[i], i, arr);
+                }
+            }
+        }
+    };
+
+
+    // Adscript
     var AdtechManager = function(config) {
-        this.config = _.extend(this.config, config);
+        this.config = extend(config, this.config);
         if(typeof ADTECH !== 'undefined') {
             ADTECH.config.page = this.config.adtech;
             ADTECH.debugMode = this.config.debugMode;
         }
         this.getAdData();
+        console.log(this.config);
     };
 
-    // Adscript
     AdtechManager.prototype = {
         config: {
             adtech: {
@@ -91,8 +114,8 @@
             return this.data;
         },
         getKeywords: function() {
-            var config = this.getAdData();
-            return config.keywords || '';
+            var data = this.getAdData();
+            return data.keywords || '';
         },
         getPlacements: function(platform, route) {
             var platform = platform;
@@ -115,7 +138,7 @@
         },
         renderAds: function() {
             var placements = this.getPlacements(this.data.platform, this.data.route);
-            _.each(placements, function(id, name) {
+            each(placements, function(id, name) {
                 this.renderAd(name, id);
             }, this);
 
