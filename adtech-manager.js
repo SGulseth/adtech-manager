@@ -75,9 +75,9 @@
                 params: {loc : '100'}
             },
             placements: {
-                'desktop': {},
-                'tablet': {},
-                'mobile': {},
+                desktop: {},
+                tablet: {},
+                mobile: {},
             },
             onAdLoaded: null,
             debugMode: false
