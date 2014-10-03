@@ -65,9 +65,9 @@
     AdtechManager.prototype = {
         config: {
             adtech: {
-                protocol: 'http',
-                server: 'secserv.adtech.de',
-                network: '1582',
+                protocol: null,
+                server: null,
+                network: null,
                 enableMultiAd: true,
                 fif: {
                     usfif: true
