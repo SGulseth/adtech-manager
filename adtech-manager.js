@@ -79,6 +79,7 @@
                 tablet: {},
                 mobile: {},
             },
+            emptyPixel: 'Default_Size_16_1x1.gif',
             onAdLoaded: null,
             debugMode: false
         },
@@ -122,7 +123,7 @@
         },
         onAdLoaded: function(placement, el) {
             var ifDoc = el.querySelector('iframe').contentDocument
-            if (ifDoc.querySelector('[src*="Default_Size_16_1x1.gif"]')) {
+            if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
                 el.style.display = 'none';
             } else {
                 el.style.display = 'block';
