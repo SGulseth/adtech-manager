@@ -26,27 +26,13 @@
              return chr ? chr.toUpperCase() : '';
          });
     };
-    var getData = function(el) {
-        if (el.dataset) {
-            return el.dataset;
-        }
-        else {
-            var data = {};
-
-            each(el.attributes, function(attr) {
-                var name = attr.nodeName;
-                if (/data\-/.test(name)) {
-                    data[camelCase(name.replace('data-', ''))] = attr.nodeValue;
-                }
-            });
-
-            return data;
-        }
-    };
     var extend = function(target, source) {
-        for (var prop in source) {
+        var prop;
+        for (prop in source) {
             if (prop in target) {
-                extend(target[prop], source[prop]);
+                if (typeof(target[prop]) === 'object') {
+                    extend(target[prop], source[prop]);
+                }
             }
             else {
                 target[prop] = source[prop];
@@ -81,7 +67,6 @@
             ADTECH.config.page = this.config.adtech;
             ADTECH.debugMode = this.config.debugMode;
         }
-        this.getAdData();
         console.log(this.config);
     };
 
@@ -102,25 +87,20 @@
                 tablet: {},
                 mobile: {},
             },
+            device: 'desktop',
+            route: null,
+            keywords: [],
             emptyPixel: 'Default_Size_16_1x1.gif',
             onAdLoaded: null,
             debugMode: false
         },
-        data: null,
-        getAdData: function() {
-            if (this.data === null) {
-                this.data = getData($('#ad-data'));
-            }
-            return this.data;
-        },
         getKeywords: function() {
-            var data = this.getAdData();
-            return data.keywords || '';
+            return (this.config.keywords || []).join('+');
         },
-        getPlacements: function(platform, route) {
-            var platform = platform;
+        getPlacements: function(device, route) {
+            var device = device;
 
-            return this.config.placements[platform][route] || {};
+            return this.config.placements[device][route] || {};
         },
         renderAd: function(placement, placementId) {
             var params = {},
@@ -137,7 +117,7 @@
              }
         },
         renderAds: function() {
-            var placements = this.getPlacements(this.data.platform, this.data.route);
+            var placements = this.getPlacements(this.config.device, this.config.route);
             each(placements, function(id, name) {
                 this.renderAd(name, id);
             }, this);
