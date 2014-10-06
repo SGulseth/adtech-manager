@@ -19,7 +19,20 @@
     }
 
     // HELPERS
-    var $ = document.querySelector.bind(document);
+    var slice = Array.prototype.slice;
+
+    var bind = function(func, obj) {
+        if (func.bind) {
+            return func.bind(obj);
+        }
+        else {
+            return function() {
+                return func.apply(obj, arguments);
+            };
+        }
+    };
+
+    var $ = bind(document.querySelector, document);
 
     var camelCase = function(str) {
          return str.replace(/-+(.)?/g, function(match, chr){
@@ -30,7 +43,7 @@
         var prop;
         for (prop in source) {
             if (prop in target) {
-                if (typeof(target[prop]) === 'object') {
+                if (typeof(target[prop].length) === 'undefined') {
                     extend(target[prop], source[prop]);
                 }
             }
@@ -112,7 +125,9 @@
                     params: params,
                     placement: placementId,
                     adContainerId: 'ad-' + placement,
-                    complete: this.onAdLoaded.bind(this, placement, el)
+                    complete: bind(function() {
+                        this.onAdLoaded.call(this, placement, el)
+                    }, this)
                 });
              }
         },
@@ -131,7 +146,7 @@
             } else {
                 el.style.display = 'block';
                 if (typeof this.config.onAdLoaded === 'function') {
-                    this.config.onAdLoaded.bind(this, placement, el);
+                    this.config.onAdLoaded.call(this, placement, el);
                 }
             }
         }
