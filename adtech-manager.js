@@ -14,7 +14,7 @@
 }(this, function (window) {
     'use strict';
 
-    if(typeof window.ADTECH === 'undefined') {
+    if (typeof window.ADTECH === 'undefined') {
         throw 'AdTechManager requires Dac.js.'
     }
 
@@ -76,7 +76,7 @@
     // Adscript
     var AdtechManager = function(config) {
         this.config = extend(config, this.config);
-        if(typeof ADTECH !== 'undefined') {
+        if (typeof ADTECH !== 'undefined') {
             ADTECH.config.page = this.config.adtech;
             ADTECH.debugMode = this.config.debugMode;
         }
@@ -105,8 +105,11 @@
             keywords: [],
             emptyPixel: 'Default_Size_16_1x1.gif',
             onAdLoaded: null,
+            onAllAdsLoaded: null,
             debugMode: false
         },
+        adsQueued: 0,
+        adsRendered: 0,
         getKeywords: function() {
             return (this.config.keywords || []).join('+');
         },
@@ -129,15 +132,19 @@
                         this.onAdLoaded.call(this, placement, el)
                     }, this)
                 });
+                this.adsQueued++;
              }
         },
         renderAds: function() {
             var placements = this.getPlacements(this.config.device, this.config.route);
-            each(placements, function(id, name) {
-                this.renderAd(name, id);
-            }, this);
-
-            ADTECH.executeQueue();
+            if (placements) {
+                each(placements, function(id, name) {
+                    this.renderAd(name, id);
+                }, this);
+                if (this.adsQueued > 0) {
+                    ADTECH.executeQueue();
+                }
+            }
         },
         onAdLoaded: function(placement, el) {
             var ifDoc = el.querySelector('iframe').contentDocument
@@ -145,8 +152,15 @@
                 el.style.display = 'none';
             } else {
                 el.style.display = 'block';
-                if (typeof this.config.onAdLoaded === 'function') {
+                if (typeof(this.config.onAdLoaded) === 'function') {
                     this.config.onAdLoaded.call(this, placement, el);
+                }
+            }
+
+            this.adsRendered++;
+            if (this.adsQueued === this.adsRendered) {
+                if (typeof(this.config.onAllAdsLoaded) === 'function') {
+                    this.config.onAllAdsLoaded.call(this);
                 }
             }
         }
