@@ -146,6 +146,9 @@
                 }
             }
         },
+        adsLoaded: function() {
+            return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
+        },
         onAdLoaded: function(placement, el) {
             var ifDoc = el.querySelector('iframe').contentDocument
             if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
