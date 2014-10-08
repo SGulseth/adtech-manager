@@ -80,7 +80,6 @@
             ADTECH.config.page = this.config.adtech;
             ADTECH.debugMode = this.config.debugMode;
         }
-        console.log(this.config);
     };
 
     AdtechManager.prototype = {
@@ -91,7 +90,7 @@
                 network: null,
                 enableMultiAd: true,
                 fif: {
-                    usfif: true
+                    usefif: true,
                 },
                 params: {loc : '100'}
             },
@@ -114,9 +113,16 @@
             return (this.config.keywords || []).join('+');
         },
         getPlacements: function(device, route) {
-            var device = device;
+            var device = device,
+                placements = null;
 
-            return this.config.placements[device][route] || {};
+            placements = this.config.placements[device][route];
+
+            if (typeof(placements) === 'string') {
+                placements = this.getPlacements(device, placements);
+            }
+
+            return placements;
         },
         renderAd: function(placement, placementId) {
             var params = {},
@@ -133,10 +139,15 @@
                     }, this)
                 });
                 this.adsQueued++;
+             } else {
+                if (this.config.debugMode) {
+                    console.error ('Placement ' + placement + '('+ placementId + ') not found for route ' + this.config.route + ' on device ' + this.config.device);
+                }
              }
         },
         renderAds: function() {
             var placements = this.getPlacements(this.config.device, this.config.route);
+
             if (placements) {
                 each(placements, function(id, name) {
                     this.renderAd(name, id);
@@ -144,16 +155,25 @@
                 if (this.adsQueued > 0) {
                     ADTECH.executeQueue();
                 }
+            } else {
+                if (this.config.debugMode) {
+                    console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
+                }
             }
         },
         adsLoaded: function() {
             return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
         },
         onAdLoaded: function(placement, el) {
-            var ifDoc = el.querySelector('iframe').contentDocument
+            var iframe = el.querySelector('iframe'),
+                ifDoc = iframe.contentDocument;
             if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
                 el.style.display = 'none';
             } else {
+                iframe.onload = function() {
+                    iframe.setAttribute('height', ifDoc.body.clientHeight);
+                    iframe.setAttribute('width',  '100%');
+                };
                 el.style.display = 'block';
                 if (typeof(this.config.onAdLoaded) === 'function') {
                     this.config.onAdLoaded.call(this, placement, el);
