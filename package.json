@@ -1,0 +1,19 @@
+{
+  "name": "Adtech-Manager",
+  "version": "0.0.1",
+  "description": "Adtech-Manager ==============",
+  "main": "adtech-manager.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SGulseth/Adtech-Manager"
+  },
+  "author": "Sindre Gulseth",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SGulseth/Adtech-Manager/issues"
+  },
+  "homepage": "https://github.com/SGulseth/Adtech-Manager"
+}
