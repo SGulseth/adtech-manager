@@ -11,11 +11,15 @@
     else {
         root.AdtechManager = factory(root);
     }
-}(this, function (window) {
+}(this, function (root) {
     'use strict';
 
+    if (typeof window === 'undefined') {
+        throw 'AdTechManager must be run in a browser';
+    }
+
     if (typeof window.ADTECH === 'undefined') {
-        throw 'AdTechManager requires Dac.js.'
+        // throw 'AdTechManager requires Dac.js.'
     }
 
     // HELPERS
