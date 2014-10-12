@@ -44,17 +44,21 @@ define(['adtech-manager'], function(AdtechManager) {
         }
     }
 
-    var adtech = new AdtechManager(adConfig);
-    adtech.renderAds()
-
-    // All ads loaded?
-    if (adtech.adsLoaded()) {
-        // Yippe, all ads are loaded
-    } else {
-        // Wait for it..
-    }
-
-    return adtech;
+    try {
+        var adtech = new AdtechManager(adConfig);
+        adtech.renderAds()
+    
+        // All ads loaded?
+        if (adtech.adsLoaded()) {
+            // Yippe, all ads are loaded
+        } else {
+            // Wait for it..
+        }
+    
+        return adtech;
+    } catch (e) {}
+    
+    return null;
 });
 
 ```
@@ -82,9 +86,9 @@ define(['adtech-manager'], function(AdtechManager) {
             'mobile': {},
         }
     }
-
-    var adtech = new AdtechManager(adConfig);
-    adtech.renderAds()
+    try {
+        (new AdtechManager(adConfig)).renderAds();
+    } catch(e) {}
 </script>
 ```
 
