@@ -14,14 +14,6 @@
 }(this, function (root) {
     'use strict';
 
-    if (typeof window === 'undefined') {
-        throw 'AdTechManager must be run in a browser';
-    }
-
-    if (typeof window.ADTECH === 'undefined') {
-        throw 'AdTechManager requires Dac.js.'
-    }
-
     // HELPERS
     var slice = Array.prototype.slice;
 
@@ -79,11 +71,18 @@
 
     // Adscript
     var AdtechManager = function(config) {
-        this.config = extend(config, this.config);
-        if (typeof ADTECH !== 'undefined') {
-            ADTECH.config.page = this.config.adtech;
-            ADTECH.debugMode = this.config.debugMode;
+        if (typeof window === 'undefined') {
+            throw 'AdTechManager must be run in a browser';
         }
+    
+        if (typeof window.ADTECH === 'undefined') {
+            throw 'AdTechManager requires Dac.js.'
+        }
+        
+        this.config = extend(config, this.config);
+        
+        ADTECH.config.page = this.config.adtech;
+        ADTECH.debugMode = this.config.debugMode;
     };
 
     AdtechManager.prototype = {
