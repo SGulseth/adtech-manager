@@ -19,7 +19,7 @@
     }
 
     if (typeof window.ADTECH === 'undefined') {
-        // throw 'AdTechManager requires Dac.js.'
+        throw 'AdTechManager requires Dac.js.'
     }
 
     // HELPERS
