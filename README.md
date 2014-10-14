@@ -65,7 +65,7 @@ define(['adtech-manager'], function(AdtechManager) {
 
 #Usage - Without require.js:
 ```
-<script type="text/javascript" src="//aka-cdn.adtech.de/dt/common/DAC"></script>
+<script type="text/javascript" src="//aka-cdn.adtech.de/dt/common/DAC.js"></script>
 <script type="text/javascript" src="/path/to/adtech-manager.js"></script>
 <script type="text/javascript">
     var adConfig = {
