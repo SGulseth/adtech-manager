@@ -74,13 +74,13 @@
         if (typeof window === 'undefined') {
             throw 'AdTechManager must be run in a browser';
         }
-    
+
         if (typeof window.ADTECH === 'undefined') {
             throw 'AdTechManager requires Dac.js.'
         }
-        
+
         this.config = extend(config, this.config);
-        
+
         ADTECH.config.page = this.config.adtech;
         ADTECH.debugMode = this.config.debugMode;
     };
@@ -175,7 +175,7 @@
             } else {
                 iframe.onload = function() {
                     iframe.setAttribute('height', ifDoc.body.clientHeight);
-                    iframe.setAttribute('width',  '100%');
+                    iframe.setAttribute('width',  ifDoc.body.clientWidth > 0 ? ifDoc.body.clientWidth : '');
                 };
                 el.style.display = 'block';
                 if (typeof(this.config.onAdLoaded) === 'function') {
