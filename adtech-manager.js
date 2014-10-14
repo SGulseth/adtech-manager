@@ -174,8 +174,9 @@
                 el.style.display = 'none';
             } else {
                 iframe.onload = function() {
-                    iframe.setAttribute('height', ifDoc.body.clientHeight);
-                    iframe.setAttribute('width',  ifDoc.body.clientWidth > 0 ? ifDoc.body.clientWidth : '');
+                    var afd = ifDoc.getElementById('afd');
+                    // iframe.setAttribute('height', afd.clientHeight);
+                    // iframe.setAttribute('width',  afd.clientWidth > 0 ? afd.clientWidth : '');
                 };
                 el.style.display = 'block';
                 if (typeof(this.config.onAdLoaded) === 'function') {
