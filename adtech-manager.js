@@ -105,7 +105,7 @@
             device: 'desktop',
             route: null,
             keywords: [],
-            emptyPixel: 'Default_Size_16_1x1.gif',
+            emptyPixel: 'blank_pix_house.gif',
             onAdLoaded: null,
             onAllAdsLoaded: null,
             debugMode: false
