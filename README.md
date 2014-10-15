@@ -97,3 +97,29 @@ html:
 ```
 <div id="ad-top" class="ad adtech top"></div>
 ```
+
+css:
+```
+.adtech {
+    padding: 5px 0 0 0;
+    display: none;
+    min-height: 1px;
+
+    width: 100%;
+    height: 100%;
+}
+.adtech:before {
+    content: "annonse";
+    font-size: 10px;
+    color: #555;
+    display: block;
+}
+.adtech.hide-lable:before {
+    content: "";
+    display: none;
+}
+.adtech iframe {
+    display: block;
+    min-height: 1px;
+}
+```
