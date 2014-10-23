@@ -68,6 +68,15 @@
         }
     };
 
+    if (!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function(obj, start) {
+             for (var i = (start || 0), j = this.length; i < j; i++) {
+                 if (this[i] === obj) { return i; }
+             }
+             return -1;
+        }
+    }
+
 
     // Adscript
     var AdtechManager = function(config) {
@@ -102,6 +111,7 @@
                 tablet: {},
                 mobile: {},
             },
+            blockingAds: [],
             device: 'desktop',
             route: null,
             keywords: [],
@@ -129,11 +139,16 @@
         },
         renderAd: function(placement, placementId) {
             var params = {},
-                el = $('#ad-' + placement);
+                el = $('#ad-' + placement),
+                f = ADTECH.enqueueAd;
 
              if (el) {
                 params.keywords = this.getKeywords();
-                ADTECH.enqueueAd({
+                if (this.config.blockingAds.indexOf(placement) !== -1) {
+                    f = ADTECH.loadAd;
+                }
+
+                f({
                     params: params,
                     placement: placementId,
                     adContainerId: 'ad-' + placement,
