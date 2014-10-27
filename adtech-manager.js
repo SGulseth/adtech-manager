@@ -164,12 +164,14 @@
              }
         },
         renderAds: function() {
-            var placements = this.getPlacements(this.config.device, this.config.route);
+            var placements = this.getPlacements(this.config.device, this.config.route),
+                positions = document.querySelectorAll('.adtech');
 
             if (placements) {
                 each(placements, function(id, name) {
                     this.renderAd(name, id);
                 }, this);
+
                 if (this.adsQueued > 0) {
                     ADTECH.executeQueue();
                 }
@@ -178,6 +180,15 @@
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
             }
+            each(positions, function(position) {
+                var id = position.getAttribute('id');
+                if (id) {
+                    id = id.replace('ad-','');
+                    if (typeof(placements[id]) === 'undefined') {
+                        position.style['display'] = 'none';
+                    }
+                }
+            }, this)
         },
         adsLoaded: function() {
             return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
@@ -186,9 +197,10 @@
             var iframe = el.querySelector('iframe'),
                 ifDoc = iframe.contentDocument;
             if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
-                el.style.display = 'none';
+                el.style['display'] = 'none';
             } else {
-                el.style.display = 'block';
+                el.style['display'] = 'block';
+                el.className = el.className +' ad-loaded';
                 if (typeof(this.config.onAdLoaded) === 'function') {
                     this.config.onAdLoaded.call(this, placement, el);
                 }
