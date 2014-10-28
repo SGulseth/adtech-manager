@@ -103,6 +103,7 @@
                 enableMultiAd: true,
                 fif: {
                     usefif: true,
+                    disableFriendlyFlag: true
                 },
                 params: {loc : '100'}
             },
