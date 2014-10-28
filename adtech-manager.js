@@ -140,7 +140,6 @@
             } else {
                 var regexPlacements = null;
                 each(placements, function(placements, placementRoute) {
-                    console.log(route, placementRoute);
                     if (route.match('^'+placementRoute)) {
                         regexPlacements = placements;
                     }
