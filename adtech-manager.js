@@ -130,13 +130,23 @@
             var device = device,
                 placements = null;
 
-            placements = this.config.placements[device][route];
+            placements = this.config.placements[device];
 
-            if (typeof(placements) === 'string') {
-                placements = this.getPlacements(device, placements);
+            if (placements[route]) {
+                if (typeof(placements[route]) === 'string') {
+                    return this.getPlacements(device, placements[route]);
+                }
+                return placements[route];
+            } else {
+                var regexPlacements = null;
+                each(placements, function(placements, placementRoute) {
+                    console.log(route, placementRoute);
+                    if (route.match('^'+placementRoute)) {
+                        regexPlacements = placements;
+                    }
+                });
+                return regexPlacements;
             }
-
-            return placements;
         },
         renderAd: function(placement, placementId) {
             var params = {},
@@ -165,8 +175,7 @@
              }
         },
         renderAds: function() {
-            var placements = this.getPlacements(this.config.device, this.config.route),
-                positions = document.querySelectorAll('.adtech');
+            var placements = this.getPlacements(this.config.device, this.config.route);
 
             if (placements) {
                 each(placements, function(id, name) {
@@ -181,15 +190,6 @@
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
             }
-            each(positions, function(position) {
-                var id = position.getAttribute('id');
-                if (id) {
-                    id = id.replace('ad-','');
-                    if (typeof(placements[id]) === 'undefined') {
-                        position.style['display'] = 'none';
-                    }
-                }
-            }, this)
         },
         adsLoaded: function() {
             return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
@@ -212,6 +212,11 @@
                 if (typeof(this.config.onAllAdsLoaded) === 'function') {
                     this.config.onAllAdsLoaded.call(this);
                 }
+                var positions = document.querySelectorAll('.ad:not(.ad-loaded)');
+
+                each(positions, function(position) {
+                    position.style['display'] = 'none';
+                }, this)
             }
         }
     };
