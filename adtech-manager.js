@@ -157,8 +157,9 @@
                 params.keywords = this.getKeywords();
                 if (this.config.blockingAds.indexOf(placement) !== -1) {
                     f = ADTECH.loadAd;
+                } else {
+                    this.adsQueued++;
                 }
-
                 f({
                     params: params,
                     placement: placementId,
@@ -167,7 +168,6 @@
                         this.onAdLoaded.call(this, placement, el)
                     }, this)
                 });
-                this.adsQueued++;
              } else {
                 if (this.config.debugMode) {
                     console.error ('Placement ' + placement + '('+ placementId + ') not found for route ' + this.config.route + ' on device ' + this.config.device);
@@ -207,16 +207,18 @@
                 }
             }
 
-            this.adsRendered++;
-            if (this.adsQueued === this.adsRendered) {
-                if (typeof(this.config.onAllAdsLoaded) === 'function') {
-                    this.config.onAllAdsLoaded.call(this);
-                }
-                var positions = document.querySelectorAll('.ad:not(.ad-loaded)');
+            if (this.config.blockingAds.indexOf(placement) === -1) {
+                this.adsRendered++;
+                if (this.adsQueued === this.adsRendered) {
+                    if (typeof(this.config.onAllAdsLoaded) === 'function') {
+                        this.config.onAllAdsLoaded.call(this);
+                    }
+                    var positions = document.querySelectorAll('.ad:not(.ad-loaded)');
 
-                each(positions, function(position) {
-                    position.style['display'] = 'none';
-                }, this)
+                    each(positions, function(position) {
+                        position.style['display'] = 'none';
+                    }, this)
+                }
             }
         }
     };
