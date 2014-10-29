@@ -123,6 +123,7 @@
         },
         adsQueued: 0,
         adsRendered: 0,
+        rendered: [],
         getKeywords: function() {
             return (this.config.keywords || []).join('+');
         },
@@ -147,31 +148,49 @@
                 return regexPlacements;
             }
         },
-        renderAd: function(placement, placementId) {
+        renderAd: function(placement, placementId, forceBlocking) {
             var params = {},
                 el = $('#ad-' + placement),
-                f = ADTECH.enqueueAd;
+                f = ADTECH.enqueueAd,
+                blocking = (this.config.blockingAds.indexOf(placement) !== -1);
 
-             if (el) {
+            if (typeof(forceBlocking) !== 'undefined') {
+                blocking = forceBlocking;
+            }
+
+            if(typeof(this.rendered[placement]) !== 'undefined') {
+                return;
+            }
+            this.rendered[placement] = true;
+
+            if (el) {
                 params.keywords = this.getKeywords();
-                if (this.config.blockingAds.indexOf(placement) !== -1) {
+                if (blocking) {
                     f = ADTECH.loadAd;
                 } else {
                     this.adsQueued++;
                 }
+
                 f({
                     params: params,
                     placement: placementId,
                     adContainerId: 'ad-' + placement,
                     complete: bind(function() {
-                        this.onAdLoaded.call(this, placement, el)
+                        this.onAdLoaded.call(this, placement, el, blocking)
                     }, this)
                 });
-             } else {
+            } else {
                 if (this.config.debugMode) {
                     console.error ('Placement ' + placement + '('+ placementId + ') not found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
-             }
+            }
+        },
+        renderPlacement: function(placement) {
+            var placements = this.getPlacements(this.config.device, this.config.route);
+
+            if (placements && typeof(placements[placement]) !== 'undefined') {
+                this.renderAd(placement, placements[placement], true);
+            }
         },
         renderAds: function() {
             var placements = this.getPlacements(this.config.device, this.config.route);
@@ -193,20 +212,21 @@
         adsLoaded: function() {
             return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
         },
-        onAdLoaded: function(placement, el) {
+        onAdLoaded: function(placement, el, blocking) {
             var iframe = el.querySelector('iframe'),
                 ifDoc = iframe.contentDocument;
+
             if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
                 el.style['display'] = 'none';
             } else {
                 el.style['display'] = 'block';
                 el.className = el.className +' ad-loaded';
                 if (typeof(this.config.onAdLoaded) === 'function') {
-                    this.config.onAdLoaded.call(this, placement, el);
+                    this.config.onAdLoaded.apply(this, arguments);
                 }
             }
 
-            if (this.config.blockingAds.indexOf(placement) === -1) {
+            if (!blocking) {
                 this.adsRendered++;
                 if (this.adsQueued === this.adsRendered) {
                     if (typeof(this.config.onAllAdsLoaded) === 'function') {
