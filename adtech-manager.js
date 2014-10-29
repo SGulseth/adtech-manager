@@ -198,8 +198,11 @@
 
                 if (this.adsQueued > 0) {
                     ADTECH.executeQueue();
+                } else {
+                    this.hideNotRendered();
                 }
             } else {
+                this.hideNotRendered();
                 if (this.config.debugMode) {
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
@@ -228,13 +231,16 @@
                     if (typeof(this.config.onAllAdsLoaded) === 'function') {
                         this.config.onAllAdsLoaded.call(this);
                     }
-                    var positions = document.querySelectorAll('.ad:not(.ad-loaded)');
-
-                    each(positions, function(position) {
-                        position.style['display'] = 'none';
-                    }, this)
+                    this.hideNotRendered();
                 }
             }
+        },
+        hideNotRendered: function() {
+            var positions = document.querySelectorAll('.ad:not(.ad-loaded)');
+
+            each(positions, function(position) {
+                position.style['display'] = 'none';
+            }, this)
         }
     };
 
