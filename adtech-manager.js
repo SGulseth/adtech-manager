@@ -148,15 +148,10 @@
                 return regexPlacements;
             }
         },
-        renderAd: function(placement, placementId, forceBlocking) {
+        renderAd: function(placement, placementId, blocking) {
             var params = {},
                 el = $('#ad-' + placement),
-                f = ADTECH.enqueueAd,
-                blocking = (this.config.blockingAds.indexOf(placement) !== -1);
-
-            if (typeof(forceBlocking) !== 'undefined') {
-                blocking = forceBlocking;
-            }
+                f = ADTECH.enqueueAd;
 
             if(typeof(this.rendered[placement]) !== 'undefined') {
                 return;
@@ -197,7 +192,8 @@
 
             if (placements) {
                 each(placements, function(id, name) {
-                    this.renderAd(name, id);
+                    var blocking = (this.config.blockingAds.indexOf(name) !== -1);
+                    this.renderAd(name, id, blocking);
                 }, this);
 
                 if (this.adsQueued > 0) {
