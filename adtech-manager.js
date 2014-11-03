@@ -130,10 +130,8 @@
             onAllAdsLoaded: null,
             debugMode: false
         },
-        blocking: true,
-        adsQueued: 0,
+        adsLoaded: [],
         adsRendered: 0,
-        rendered: [],
         getKeywords: function() {
             return (this.config.keywords || []).join('+');
         },
@@ -160,23 +158,18 @@
         },
         renderAd: function(placement, placementId, blocking, callback) {
             var params = {},
-                el = $('#ad-' + placement),
-                f = ADTECH.enqueueAd;
+                el = $('#ad-' + placement);
 
-            if(typeof(this.rendered[placement]) !== 'undefined') {
+            if(this.adsLoaded.indexOf(placement) !== -1) {
                 return;
             }
-            this.rendered[placement] = true;
 
             if (el) {
+                this.adsLoaded.push(placement);
                 params.keywords = this.getKeywords();
-                if (blocking) {
-                    f = ADTECH.loadAd;
-                } else {
-                    this.adsQueued++;
-                }
+
                 raf(bind(function() {
-                    f({
+                    ADTECH.loadAd({
                         params: params,
                         placement: placementId,
                         adContainerId: 'ad-' + placement,
@@ -210,7 +203,6 @@
             if (placements) {
                 each(placements, function(id, name) {
                     var blocking = typeof(config.blocking) === 'undefined' ? (this.config.blockingAds.indexOf(name) !== -1) : config.blocking;
-
                     this.renderAd(name, id, blocking);
                 }, this);
 
@@ -227,8 +219,8 @@
                 }
             }, this));
         },
-        adsLoaded: function() {
-            return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
+        allAdsLoaded: function() {
+            return this.adsLoaded.length > 0 && (this.adsLoaded.length === this.adsRendered);
         },
         onAdLoaded: function(placement, el, blocking) {
             var iframe = el.querySelector('iframe'),
@@ -244,14 +236,12 @@
                 }
             }
 
-            if (!blocking) {
-                this.adsRendered++;
-                if (this.adsQueued === this.adsRendered) {
-                    if (typeof(this.config.onAllAdsLoaded) === 'function') {
-                        this.config.onAllAdsLoaded.call(this);
-                    }
-                    this.hideNotRendered();
+            this.adsRendered++;
+            if (this.adsLoaded.length === this.adsRendered) {
+                if (typeof(this.config.onAllAdsLoaded) === 'function') {
+                    this.config.onAllAdsLoaded.call(this, this.adsLoaded);
                 }
+                this.hideNotRendered();
             }
         },
         hideNotRendered: function() {
