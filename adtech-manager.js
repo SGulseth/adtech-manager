@@ -156,7 +156,7 @@
                 return regexPlacements;
             }
         },
-        renderAd: function(placement, placementId, blocking, callback) {
+        renderAd: function(placement, placementId, callback) {
             var params = {},
                 el = $('#ad-' + placement);
 
@@ -165,20 +165,20 @@
             }
 
             if (el) {
-                this.adsLoaded.push(placement);
                 params.keywords = this.getKeywords();
 
                 raf(bind(function() {
+                    this.adsLoaded.push(placement);
                     ADTECH.loadAd({
                         params: params,
                         placement: placementId,
-                        adContainerId: 'ad-' + placement,
                         complete: bind(function() {
-                            this.onAdLoaded.call(this, placement, el, blocking)
+                            this.onAdLoaded.call(this, placement, el)
                             if (callback) {
-                                callback.call(window, placement, el)
+                                callback.call(null, placement, el)
                             }
-                        }, this)
+                        }, this),
+                        adContainerId: 'ad-' + placement
                     });
                 }, this));
             } else {
@@ -191,7 +191,7 @@
             var placements = this.getPlacements(this.config.device, this.config.route);
 
             if (placements && typeof(placements[placement]) !== 'undefined') {
-                this.renderAd(placement, placements[placement], true, callback);
+                this.renderAd(placement, placements[placement], callback);
             }
         },
         renderAds: function(config) {
@@ -202,8 +202,7 @@
 
             if (placements) {
                 each(placements, function(id, name) {
-                    var blocking = typeof(config.blocking) === 'undefined' ? (this.config.blockingAds.indexOf(name) !== -1) : config.blocking;
-                    this.renderAd(name, id, blocking);
+                    this.renderAd(name, id);
                 }, this);
 
             } else {
@@ -211,18 +210,14 @@
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
             }
+
             raf(bind(function() {
-                if (this.adsQueued > 0) {
-                    ADTECH.executeQueue();
-                } else {
-                    this.hideNotRendered();
-                }
             }, this));
         },
         allAdsLoaded: function() {
             return this.adsLoaded.length > 0 && (this.adsLoaded.length === this.adsRendered);
         },
-        onAdLoaded: function(placement, el, blocking) {
+        onAdLoaded: function(placement, el) {
             var iframe = el.querySelector('iframe'),
                 ifDoc = iframe.contentDocument;
 
@@ -241,7 +236,9 @@
                 if (typeof(this.config.onAllAdsLoaded) === 'function') {
                     this.config.onAllAdsLoaded.call(this, this.adsLoaded);
                 }
-                this.hideNotRendered();
+                if (this.adsLoaded.length > 1) {
+                    this.hideNotRendered();
+                }
             }
         },
         hideNotRendered: function() {
