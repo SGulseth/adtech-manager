@@ -223,6 +223,7 @@
 
             if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
                 el.style['display'] = 'none';
+                el.removeChild(iframe);
             } else {
                 el.style['display'] = 'block';
                 el.className = el.className +' ad-loaded';
