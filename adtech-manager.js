@@ -68,6 +68,15 @@
         }
     };
 
+    var raf = window.requestAnimationFrame ||
+              window.webkitRequestAnimationFrame ||
+              window.mozRequestAnimationFrame ||
+              window.msRequestAnimationFrame ||
+              function(cb) {
+                setTimeout(cb, 1000 / 60);
+              };
+
+
     if (!Array.prototype.indexOf) {
         Array.prototype.indexOf = function(obj, start) {
              for (var i = (start || 0), j = this.length; i < j; i++) {
@@ -121,6 +130,7 @@
             onAllAdsLoaded: null,
             debugMode: false
         },
+        blocking: true,
         adsQueued: 0,
         adsRendered: 0,
         rendered: [],
@@ -148,7 +158,7 @@
                 return regexPlacements;
             }
         },
-        renderAd: function(placement, placementId, blocking) {
+        renderAd: function(placement, placementId, blocking, callback) {
             var params = {},
                 el = $('#ad-' + placement),
                 f = ADTECH.enqueueAd;
@@ -165,48 +175,57 @@
                 } else {
                     this.adsQueued++;
                 }
-
-                f({
-                    params: params,
-                    placement: placementId,
-                    adContainerId: 'ad-' + placement,
-                    complete: bind(function() {
-                        this.onAdLoaded.call(this, placement, el, blocking)
-                    }, this)
-                });
+                raf(bind(function() {
+                    f({
+                        params: params,
+                        placement: placementId,
+                        adContainerId: 'ad-' + placement,
+                        complete: bind(function() {
+                            this.onAdLoaded.call(this, placement, el, blocking)
+                            if (callback) {
+                                callback.call(window, placement, el)
+                            }
+                        }, this)
+                    });
+                }, this));
             } else {
                 if (this.config.debugMode) {
                     console.error ('Placement ' + placement + '('+ placementId + ') not found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
             }
         },
-        renderPlacement: function(placement) {
+        renderPlacement: function(placement, callback) {
             var placements = this.getPlacements(this.config.device, this.config.route);
 
             if (placements && typeof(placements[placement]) !== 'undefined') {
-                this.renderAd(placement, placements[placement], true);
+                this.renderAd(placement, placements[placement], true, callback);
             }
         },
-        renderAds: function() {
+        renderAds: function(config) {
             var placements = this.getPlacements(this.config.device, this.config.route);
+            if (typeof(config) !== 'object') {
+                config = {};
+            }
 
             if (placements) {
                 each(placements, function(id, name) {
-                    var blocking = (this.config.blockingAds.indexOf(name) !== -1);
+                    var blocking = typeof(config.blocking) === 'undefined' ? (this.config.blockingAds.indexOf(name) !== -1) : config.blocking;
+
                     this.renderAd(name, id, blocking);
                 }, this);
 
+            } else {
+                if (this.config.debugMode) {
+                    console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
+                }
+            }
+            raf(bind(function() {
                 if (this.adsQueued > 0) {
                     ADTECH.executeQueue();
                 } else {
                     this.hideNotRendered();
                 }
-            } else {
-                this.hideNotRendered();
-                if (this.config.debugMode) {
-                    console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
-                }
-            }
+            }, this));
         },
         adsLoaded: function() {
             return this.adsQueued > 0 && (this.adsQueued === this.adsRendered);
