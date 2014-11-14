@@ -136,8 +136,11 @@
             return (this.config.keywords || []).join('+');
         },
         getPlacements: function(device, route) {
-            var device = device,
-                placements = null;
+            var placements = null;
+
+            device = device || this.config.device;
+            route = route || this.config.route;
+
 
             placements = this.config.placements[device];
 
@@ -188,14 +191,14 @@
             }
         },
         renderPlacement: function(placement, callback) {
-            var placements = this.getPlacements(this.config.device, this.config.route);
+            var placements = this.getPlacements();
 
             if (placements && typeof(placements[placement]) !== 'undefined') {
                 this.renderAd(placement, placements[placement], callback);
             }
         },
         renderAds: function(config) {
-            var placements = this.getPlacements(this.config.device, this.config.route);
+            var placements = this.getPlacements();
             if (typeof(config) !== 'object') {
                 config = {};
             }
@@ -209,10 +212,9 @@
                 if (this.config.debugMode) {
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
                 }
-            }
 
-            raf(bind(function() {
-            }, this));
+                this.hideNotRendered();
+            }
         },
         allAdsLoaded: function() {
             return this.adsLoaded.length > 0 && (this.adsLoaded.length === this.adsRendered);
@@ -243,7 +245,7 @@
             }
         },
         hideNotRendered: function() {
-            var positions = document.querySelectorAll('.ad:not(.ad-loaded)');
+            var positions = document.querySelectorAll('.adtech:not(.ad-loaded)');
 
             each(positions, function(position) {
                 position.style['display'] = 'none';
