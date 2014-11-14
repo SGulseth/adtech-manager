@@ -1,6 +1,6 @@
 {
   "name": "adtech-manager",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Adtech-Manager ==============",
   "main": "adtech-manager.js",
   "scripts": {
