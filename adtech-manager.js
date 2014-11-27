@@ -120,7 +120,7 @@
 
 
     // Adscript
-    var AdtechManager = function(config) {
+    var AdtechManager = function(config, loadFunc) {
         if (typeof window === 'undefined') {
             throw 'AdTechManager must be run in a browser';
         }
@@ -130,6 +130,7 @@
         }
 
         this.config = extend(config, this.config);
+        this.loadFunc = loadFunc || ADTECH.loadAd;
 
         ADTECH.config.page = this.config.adtech;
         ADTECH.debugMode = this.config.debugMode;
@@ -191,7 +192,7 @@
                 return regexPlacements;
             }
         },
-        renderAd: function(placement, placementId, callback) {
+        renderAd: function(placement, placementId, queue, callback) {
             var params = {},
                 el = $('#ad-' + placement);
 
@@ -202,20 +203,18 @@
             if (el) {
                 params.keywords = this.getKeywords();
 
-                raf(bind(function() {
-                    this.adsLoaded.push(placement);
-                    ADTECH.loadAd({
-                        params: params,
-                        placement: placementId,
-                        complete: bind(function() {
-                            this.onAdLoaded.call(this, placement, el)
-                            if (callback) {
-                                callback.call(null, placement, el)
-                            }
-                        }, this),
-                        adContainerId: 'ad-' + placement
-                    });
-                }, this));
+                this.adsLoaded.push(placement);
+                this.loadFunc({
+                    params: params,
+                    placement: placementId,
+                    complete: bind(function() {
+                        this.onAdLoaded.call(this, placement, el)
+                        if (callback) {
+                            callback.call(null, placement, el)
+                        }
+                    }, this),
+                    adContainerId: 'ad-' + placement
+                });
             } else {
                 if (this.config.debugMode) {
                     console.error ('Placement ' + placement + '('+ placementId + ') not found for route ' + this.config.route + ' on device ' + this.config.device);
@@ -226,7 +225,7 @@
             var placements = this.getPlacements();
 
             if (placements && typeof(placements[placement]) !== 'undefined') {
-                this.renderAd(placement, placements[placement], callback);
+                this.renderAd(placement, placements[placement], true, callback);
             }
         },
         renderAds: function(config) {
@@ -240,6 +239,9 @@
                     this.renderAd(name, id);
                 }, this);
 
+                raf(function() {
+                    ADTECH.executeQueue();
+                });
             } else {
                 if (this.config.debugMode) {
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
