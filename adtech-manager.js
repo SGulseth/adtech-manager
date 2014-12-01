@@ -239,9 +239,7 @@
                     this.renderAd(name, id);
                 }, this);
 
-                raf(function() {
-                    ADTECH.executeQueue();
-                });
+                ADTECH.executeQueue();
             } else {
                 if (this.config.debugMode) {
                     console.error ('No placements found for route ' + this.config.route + ' on device ' + this.config.device);
