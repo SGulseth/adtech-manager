@@ -130,7 +130,7 @@
         }
 
         this.config = extend(config, this.config);
-        this.loadFunc = loadFunc || ADTECH.loadAd;
+        this.loadFunc = loadFunc || ADTECH.enqueueAd;
 
         ADTECH.config.page = this.config.adtech;
         ADTECH.debugMode = this.config.debugMode;
