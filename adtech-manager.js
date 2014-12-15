@@ -120,7 +120,7 @@
 
 
     // Adscript
-    var AdtechManager = function(config, loadFunc) {
+    var AdtechManager = function(config) {
         if (typeof window === 'undefined') {
             throw 'AdTechManager must be run in a browser';
         }
@@ -130,7 +130,6 @@
         }
 
         this.config = extend(config, this.config);
-        this.loadFunc = loadFunc || ADTECH.enqueueAd;
 
         ADTECH.config.page = this.config.adtech;
         ADTECH.debugMode = this.config.debugMode;
@@ -192,9 +191,10 @@
                 return regexPlacements;
             }
         },
-        renderAd: function(placement, placementId, queue, callback) {
+        renderAd: function(placement, placementId, loadFunc, callback) {
             var params = {},
-                el = $('#ad-' + placement);
+                el = $('#ad-' + placement),
+                loadFunc = loadFunc || ADTECH.loadAd;
 
             if(this.adsLoaded.indexOf(placement) !== -1) {
                 return;
@@ -204,7 +204,7 @@
                 params.keywords = this.getKeywords();
 
                 this.adsLoaded.push(placement);
-                this.loadFunc({
+                loadFunc({
                     params: params,
                     placement: placementId,
                     complete: bind(function() {
@@ -225,7 +225,7 @@
             var placements = this.getPlacements();
 
             if (placements && typeof(placements[placement]) !== 'undefined') {
-                this.renderAd(placement, placements[placement], true, callback);
+                this.renderAd(placement, placements[placement], ADTECH.loadAd, callback);
             }
         },
         renderAds: function(config) {
@@ -236,7 +236,7 @@
 
             if (placements) {
                 each(placements, function(id, name) {
-                    this.renderAd(name, id);
+                    this.renderAd(name, id, ADTECH.enqueueAd);
                 }, this);
 
                 ADTECH.executeQueue();
