@@ -67,19 +67,11 @@
              return chr ? chr.toUpperCase() : '';
          });
     };
-    var extend = function(target, source) {
-        var prop;
-        for (prop in source) {
-            if (prop in target) {
-                if (typeof(target[prop].length) === 'undefined') {
-                    extend(target[prop], source[prop]);
-                }
-            }
-            else {
-                target[prop] = source[prop];
-            }
+    var extend = function(destination, source) {
+        for (var property in source) {
+            destination[property] = source[property];
         }
-        return target;
+        return destination;
     };
     var each = function(arr, callback, obj) {
         if (arr) {
@@ -129,7 +121,7 @@
             throw 'AdTechManager requires Dac.js.'
         }
 
-        this.config = extend(config, this.config);
+        this.config = extend(this.config, config);
 
         ADTECH.config.page = this.config.adtech;
         ADTECH.debugMode = this.config.debugMode;
