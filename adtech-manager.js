@@ -183,6 +183,12 @@
                 return regexPlacements;
             }
         },
+        resetAds: function() {
+            this.adsLoaded = [];
+            this.adsRendered = [];
+
+            return this;
+        },
         renderAd: function(placement, placementId, loadFunc, callback) {
             var params = {},
                 el = $('#ad-' + placement),
