@@ -254,7 +254,7 @@
                 ifDoc;
             
             if (iframe) {
-                iframe.contentDocument
+                ifDoc = iframe.contentDocument
                 if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
                     el.style['display'] = 'none';
                     el.removeChild(iframe);
