@@ -251,16 +251,19 @@
         },
         onAdLoaded: function(placement, el) {
             var iframe = el.querySelector('iframe'),
-                ifDoc = iframe.contentDocument;
-
-            if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
-                el.style['display'] = 'none';
-                el.removeChild(iframe);
-            } else {
-                el.style['display'] = 'block';
-                el.className = el.className +' ad-loaded';
-                if (typeof(this.config.onAdLoaded) === 'function') {
-                    this.config.onAdLoaded.apply(this, arguments);
+                ifDoc;
+            
+            if (iframe) {
+                iframe.contentDocument
+                if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
+                    el.style['display'] = 'none';
+                    el.removeChild(iframe);
+                } else {
+                    el.style['display'] = 'block';
+                    el.className = el.className +' ad-loaded';
+                    if (typeof(this.config.onAdLoaded) === 'function') {
+                        this.config.onAdLoaded.apply(this, arguments);
+                    }
                 }
             }
 
