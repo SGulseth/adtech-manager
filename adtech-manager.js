@@ -149,7 +149,6 @@
             device: 'desktop',
             route: null,
             keywords: [],
-            emptyPixel: 'blank_pix_house.gif',
             onAdLoaded: null,
             onAllAdsLoaded: null,
             debugMode: false
@@ -255,7 +254,7 @@
             
             if (iframe) {
                 ifDoc = iframe.contentDocument
-                if (ifDoc.querySelector('[src*="'+ this.config.emptyPixel +'"]')) {
+                if (ifDoc.getElementById('empty')) {
                     el.style['display'] = 'none';
                     el.removeChild(iframe);
                 } else {
