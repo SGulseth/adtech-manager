@@ -254,7 +254,7 @@
             
             if (iframe) {
                 ifDoc = iframe.contentDocument
-                if (ifDoc.getElementById('empty') || ifDoc.querySelector('[id*="blank_pix_house.gif"]')) {
+                if (ifDoc.getElementById('empty')) {
                     el.style['display'] = 'none';
                     el.removeChild(iframe);
                 } else {
